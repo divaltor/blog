@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Orb setup: install the toolchain and dependencies so fresh orbs start ready.
+# Must stay non-interactive, idempotent, and fast on a warm filesystem.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "bun not found, installing..."
+  time curl -fsSL https://bun.sh/install | bash
+  export PATH="$HOME/.bun/bin:$PATH"
+  marker='# orb-setup: bun on PATH'
+  if ! grep -Fqx "$marker" "$HOME/.bash_profile" 2>/dev/null; then
+    printf '\n%s\nexport PATH="$HOME/.bun/bin:$PATH"\n' "$marker" >> "$HOME/.bash_profile"
+  fi
+fi
+
+echo "bun: $(bun --version)"
+
+echo "Installing dependencies..."
+if ! time bun install --frozen-lockfile; then
+  # Older bun releases cannot parse newer lockfiles; upgrade and retry once.
+  echo "bun install failed, upgrading bun and retrying..."
+  time bun upgrade
+  echo "bun: $(bun --version)"
+  time bun install --frozen-lockfile
+fi
+
+echo "orb setup complete"

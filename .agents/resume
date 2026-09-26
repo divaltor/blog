@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Orb resume: fast, idempotent health check after wake. No installs here.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+command -v bun >/dev/null || { echo "bun not found; rerun .agents/setup" >&2; exit 1; }
+[ -d node_modules ] || { echo "node_modules missing; rerun .agents/setup" >&2; exit 1; }
