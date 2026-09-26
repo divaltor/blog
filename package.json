@@ -1,6 +1,7 @@
 {
   "name": "blog",
   "private": true,
+  "packageManager": "bun@1.4.2",
   "type": "module",
   "sideEffects": false,
   "scripts": {

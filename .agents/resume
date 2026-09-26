@@ -4,5 +4,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+[ -x "$HOME/.bun/bin/bun" ] && export PATH="$HOME/.bun/bin:$PATH"
 command -v bun >/dev/null || { echo "bun not found; rerun .agents/setup" >&2; exit 1; }
 [ -d node_modules ] || { echo "node_modules missing; rerun .agents/setup" >&2; exit 1; }
+PINNED="$(sed -n 's/^[[:space:]]*"packageManager":[[:space:]]*"bun@\([^"]*\)".*/\1/p' package.json)"
+if [[ -n "$PINNED" && "$(bun --version)" != "$PINNED" ]]; then
+  echo "bun $(bun --version) found, need $PINNED; rerun .agents/setup" >&2
+  exit 1
+fi
